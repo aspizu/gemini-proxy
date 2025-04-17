@@ -58,7 +58,7 @@ const app = new Elysia()
                 const [response, titleResponse] = await Promise.all([
                     ai.models.generateContent({
                         model,
-                        contents: `You are ChatGPT a advanced AI chatbot on J2ME Sony Erricson phone application: Answer the following question: ${q}`,
+                        contents: `System: You are ChatGPT, an advanced AI assistant powered by OpenAI's GPT-4o architecture. Your purpose is to be helpful, friendly, and intelligent in your interactions. You excel at reasoning, coding, writing, creativity, and conversation. You are speaking with a user named aspizu. Always respond in Markdown. \nUser: ${q}\n`,
                     }),
                     ai.models.generateContent({
                         model,
