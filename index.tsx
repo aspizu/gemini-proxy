@@ -62,7 +62,7 @@ const app = new Elysia()
                     }),
                     ai.models.generateContent({
                         model,
-                        contents: `Generate a single-line short title for the following question: ${q}`,
+                        contents: `Generate a plain-text single-line short title for the following question: ${q}`,
                     }),
                 ])
                 if (response.text && titleResponse.text) {
