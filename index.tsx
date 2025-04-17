@@ -14,18 +14,22 @@ const app = new Elysia()
     .use(html())
     .get("/", () => {
         return (
-            <html>
-                <head>
-                    <link rel="stylesheet" href="https://unpkg.com/7.css" />
-                </head>
-                <form method="get" action="/ask">
+            <>
+                <form method="get" action="/ask" class="col">
                     <input type="text" name="q" />
-                    <select name="model">
-                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                    </select>
-                    <button type="submit">Ask</button>
+                    <div class="row ml-auto">
+                        <select name="model">
+                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                        </select>
+                        <button type="submit">Ask</button>
+                    </div>
                 </form>
-            </html>
+                <style>{`
+                    .row { display: flex; flex-direction: row; }
+                    .col { display: flex; flex-direction: column; }
+                    .ml-auto { margin-left: auto; }
+                `}</style>
+            </>
         )
     })
     .get(
