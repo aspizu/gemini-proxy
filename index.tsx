@@ -41,7 +41,14 @@ const app = new Elysia()
             })
             if (response.text) {
                 const result = md.render(response.text)
-                return result
+                return (
+                    <>
+                        <a href="/">back</a>
+                        <p>{q}</p>
+                        <hr />
+                        {result}
+                    </>
+                )
             }
         },
         {
