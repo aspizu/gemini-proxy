@@ -8,13 +8,37 @@ import markdownit from "markdown-it"
 const ai = new GoogleGenAI({apiKey: import.meta.env.GOOGLE_API_KEY})
 const md = markdownit()
 
+function Layout({
+    title,
+    children,
+}: {
+    title?: string
+    children: JSX.Element[] | JSX.Element
+}) {
+    return (
+        <html>
+            <head>
+                <link rel="icon" href="https://chatgpt.com/favicon.ico" />
+                <link
+                    rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+                ></link>
+                <title>{title ? `${title} - ChatGPT` : "ChatGPT"}</title>
+            </head>
+            <body>
+                <main>{children}</main>
+            </body>
+        </html>
+    )
+}
+
 const app = new Elysia()
     .use(logixlysia())
     .use(cors())
     .use(html())
     .get("/", () => {
         return (
-            <>
+            <Layout>
                 <form method="get" action="/ask" class="col">
                     <input type="text" name="q" />
                     <div class="row ml-auto">
@@ -24,31 +48,49 @@ const app = new Elysia()
                         <button type="submit">Ask</button>
                     </div>
                 </form>
-                <style>{`
-                    .row { display: flex; flex-direction: row; }
-                    .col { display: flex; flex-direction: column; }
-                    .ml-auto { margin-left: auto; }
-                `}</style>
-            </>
+            </Layout>
         )
     })
     .get(
         "/ask",
         async ({query: {q, model = "gemini-2.0-flash"}}) => {
-            const response = await ai.models.generateContent({
-                model,
-                contents: `${q}`,
-            })
-            if (response.text) {
-                const result = md.render(response.text)
-                return (
-                    <>
-                        <a href="/">back</a>
-                        <p>{q}</p>
-                        <hr />
-                        {result}
-                    </>
-                )
+            try {
+                const [response, titleResponse] = await Promise.all([
+                    ai.models.generateContent({
+                        model,
+                        contents: `You are ChatGPT a advanced AI chatbot on J2ME Sony Erricson phone application: Answer the following question: ${q}`,
+                    }),
+                    ai.models.generateContent({
+                        model,
+                        contents: `Generate a single-line short title for the following question: ${q}`,
+                    }),
+                ])
+                if (response.text && titleResponse.text) {
+                    return (
+                        <Layout title={titleResponse.text}>
+                            <a href="/">back</a>
+                            <p>{q}</p>
+                            <hr />
+                            {md.render(response.text)}
+                        </Layout>
+                    )
+                } else {
+                    return (
+                        <Layout>
+                            <h1>Something went wrong</h1>
+                            <span>No response from API</span>
+                        </Layout>
+                    )
+                }
+            } catch (error) {
+                if (error instanceof Error) {
+                    return (
+                        <Layout>
+                            <h1>Something went wrong</h1>
+                            <span>{error.message}</span>
+                        </Layout>
+                    )
+                }
             }
         },
         {
